@@ -29,4 +29,25 @@
  */
 export function formatChaiMenu(items) {
   // Your code here
+  if (!Array.isArray(items) || items.length === 0) {
+    return "";
+  }
+
+  let validItems = [];
+
+  for (let item of items) {
+    if (
+      item.name &&
+      typeof item.name === "string" &&
+      item.name.trim() !== "" &&
+      item.price > 0
+    ) {
+      let formattedName = item.name.toUpperCase();
+      let menuLine = formattedName + " - Rs." + item.price;
+
+      validItems.push(menuLine);
+    }
+  }
+
+  return validItems.join(" | ");
 }

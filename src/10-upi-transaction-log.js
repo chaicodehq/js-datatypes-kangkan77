@@ -48,4 +48,69 @@
  */
 export function analyzeUPITransactions(transactions) {
   // Your code here
+  if (!Array.isArray(transactions) || transactions.length === 0) {
+    return null;
+  }
+
+  let validTxns = transactions.filter(function (t) {
+    return (
+      t.amount > 0 &&
+      typeof t.amount === "number" &&
+      (t.type === "credit" || t.type === "debit")
+    );
+  });
+
+  if (validTxns.length === 0) return null;
+
+  let totalCredit = 0;
+  let totalDebit = 0;
+  let totalAmountSum = 0;
+  let highestTxn = validTxns[0];
+  let categoryBreakdown = {};
+  let contactCounts = {};
+
+  for (let t of validTxns) {
+    if (t.type === "credit") {
+      totalCredit += t.amount;
+    } else {
+      totalDebit += t.amount;
+    }
+    totalAmountSum += t.amount;
+
+    if (t.amount > highestTxn.amount) {
+      highestTxn = t;
+    }
+
+    categoryBreakdown[t.category] = (categoryBreakdown[t.category] || 0) + t.amount;
+
+    contactCounts[t.to] = (contactCounts[t.to] || 0) + 1;
+  }
+
+  let frequentContact = "";
+  let maxCount = 0;
+  for (let contact in contactCounts) {
+    if (contactCounts[contact] > maxCount) {
+      maxCount = contactCounts[contact];
+      frequentContact = contact;
+    }
+  }
+
+  let allAbove100 = validTxns.every(t => t.amount > 100);
+  let hasLargeTransaction = validTxns.some(t => t.amount >= 5000);
+
+  let transactionCount = validTxns.length;
+  let avgTransaction = Math.round(totalAmountSum / transactionCount);
+
+  return {
+    totalCredit: totalCredit,
+    totalDebit: totalDebit,
+    netBalance: totalCredit - totalDebit,
+    transactionCount: transactionCount,
+    avgTransaction: avgTransaction,
+    highestTransaction: { ...highestTxn },
+    categoryBreakdown: categoryBreakdown,
+    frequentContact: frequentContact,
+    allAbove100: allAbove100,
+    hasLargeTransaction: hasLargeTransaction
+  };
 }

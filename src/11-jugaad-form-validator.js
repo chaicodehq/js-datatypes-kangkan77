@@ -63,4 +63,79 @@
  */
 export function validateForm(formData) {
   // Your code here
+  let errors = {};
+
+  let name = formData.name?.trim() ?? "";
+  if (typeof name !== "string" || name.length < 2 || name.length > 50) {
+    errors.name = "Name must be 2-50 characters";
+  }
+
+  let email = formData.email ?? "";
+  let atIndex = email.indexOf("@");
+  let dotIndex = email.lastIndexOf(".");
+
+  if (
+    typeof email !== "string" ||
+    atIndex === -1 ||
+    email.indexOf("@", atIndex + 1) !== -1 ||
+    dotIndex === -1 ||
+    dotIndex < atIndex + 2 ||
+    dotIndex === email.length - 1
+  ) {
+    errors.email = "Invalid email format";
+  }
+
+  let phone = formData.phone ?? "";
+  let validPhone = true;
+  if (typeof phone !== "string" || phone.length !== 10) {
+    validPhone = false;
+  } else {
+    let firstChar = phone[0];
+    if (!["6", "7", "8", "9"].includes(firstChar)) {
+      validPhone = false;
+    }
+    for (let char of phone) {
+      if (char < "0" || char > "9") {
+        validPhone = false;
+        break;
+      }
+    }
+  }
+  if (!validPhone) errors.phone = "Invalid Indian phone number";
+
+  let rawAge = formData.age;
+  let age = parseInt(rawAge);
+  if (isNaN(age) || age < 16 || age > 100 || !Number.isInteger(Number(rawAge))) {
+    errors.age = "Age must be an integer between 16 and 100";
+  }
+
+  let pincode = formData.pincode ?? "";
+  let validPin = true;
+  if (typeof pincode !== "string" || pincode.length !== 6 || pincode.startsWith("0")) {
+    validPin = false;
+  } else {
+    for (let char of pincode) {
+      if (char < "0" || char > "9") {
+        validPin = false;
+        break;
+      }
+    }
+  }
+  if (!validPin) errors.pincode = "Invalid Indian pincode";
+
+  let state = formData.state ?? "";
+  if (typeof state !== "string" || state.trim() === "") {
+    errors.state = "State is required";
+  }
+
+  if (!Boolean(formData.agreeTerms)) {
+    errors.agreeTerms = "Must agree to terms";
+  }
+
+  let isValid = Object.keys(errors).length === 0;
+
+  return {
+    isValid: isValid,
+    errors: errors
+  };
 }
